@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+</head>
+
+<body>
+<div id="car1">
+    <h2>CAR1</h2>
+    <select id="testlist1">
+        <option value="0"></option>    
+    </select><br><br>
+
+    <select id="testlist2">
+        <option value="0"></option>
+    </select><br><br>
+
+    <select id="testlist3">
+
+    </select><br><br>
+
+    <button type="button" id="button">Hit!</button><br><br>
+
+    <label>Current Price</label><br>
+    <input id="inputPrice" type="text" text=""></input><br>
+
+</div>
+
+<div id="car2">
+    <h2>CAR2</h2>
+    <select id="testlist11">
+        <option value="0"></option>    
+    </select><br><br>
+
+    <select id="testlist22">
+        <option value="0"></option>
+    </select><br><br>
+
+    <select id="testlist33">
+
+    </select><br>
+
+    <button type="button" id="button2">Hit!</button><br><br>
+
+    <label>Current Price</label><br>
+    <input id="inputPrice2" type="text" text=""></input><br>
+    
+</div>
+
+    <!--<h1>CAR 1</h1>
+    <select id="testlist1">
+        <option value="0"></option>    
+    </select><br><br>
+
+    <select id="testlist2">
+        <option value="0"></option>
+    </select><br><br>
+
+    <select id="testlist3">
+
+    </select><br><br>
+
+    <button type="button" id="button">Hit!</button><br><br>
+
+    <label>Current Price</label><br>
+    <input id="inputPrice" type="text" text=""></input><br>
+
+    <h1>CAR 2</h1>
+    <select id="testlist11">
+        <option value="0"></option>    
+    </select><br><br>
+
+    <select id="testlist22">
+        <option value="0"></option>
+    </select><br><br>
+
+    <select id="testlist33">
+
+    </select><br><br>
+
+    <button type="button" id="button2">Hit!</button><br><br>
+
+    <label>Current Price</label>
+    <input id="inputPrice2" type="text" text=""></input><br>-->
+
+    <canvas id="chart" width="300px" height="300px"></canvas>
+    
+
+    <script>
+    testlist1.addEventListener("change", async function () {
+
+        try{
+            document.getElementById("testlist2").innerText = null;
+       
+            const filter1 = document.getElementById("testlist1").value;
+
+            //send the info - request
+            const data = {brand: filter1}
+            const options = {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {"Content-Type": "application/json"}
+            };
+
+            const resp = await fetch("http://localhost:7072/test2", options)
+            const data2 = await resp.json();
+            data2.forEach(t => {
+                const option2 = document.createElement("OPTION");
+                const name2 = document.createTextNode(t.nome_veiculo);
+                option2.value = t.nome_veiculo;
+                option2.appendChild(name2);
+                document.getElementById("testlist2").appendChild(option2);
+            })   
+        }
+
+        catch (e) {
+            console.log("2 Error is: " + e)
+        }
+
+    }, false)
+
+    testlist2.addEventListener("change", async function () {
+
+        try{
+            document.getElementById("testlist3").innerText = null;
+
+            const filter1 = document.getElementById("testlist1").value
+            const filter2 = document.getElementById("testlist2").value;
+
+            //send the info - request
+            const data2 = {brand: filter1, vehicle: filter2}
+            const options = {
+                method: 'POST',
+                body: JSON.stringify(data2),
+                headers: {"Content-Type": "application/json"}
+            };
+
+            const resp2 = await fetch("http://localhost:7072/test3", options)
+            const data3 = await resp2.json();
+            data3.forEach(t => {
+                const option3 = document.createElement("OPTION");
+                const name3 = document.createTextNode(t.ano_veiculo);
+                option3.value = t.ano_veiculo;
+                option3.appendChild(name3);
+                document.getElementById("testlist3").appendChild(option3);
+            })   
+        }       
+
+        catch (e) {
+            console.log("3 Error is: " + e)
+        }
+
+    }, false)
+
+    button.addEventListener("click", async function () {
+
+        try{
+            const filter2 = document.getElementById("testlist2").value
+            const filter3 = document.getElementById("testlist3").value
+
+            const data3 = {vehicle: filter2, ano: filter3}
+            const options = {
+                method: 'POST',
+                body: JSON.stringify(data3),
+                headers: {"Content-Type": "application/json"}
+            };
+
+            const resp4 = await fetch("http://localhost:7072/test4", options)
+            const data6 = await resp4.json();
+            data6.forEach(t => {
+                
+                const name4 = t.preco_veiculo;
+                var textl = document.getElementById("inputPrice");
+                textl.value = name4;
+            }) 
+
+            const resp5 = await fetch("http://localhost:7072/test5", options)
+            const data7 = await resp5.json();
+            
+            const datal = data7.map(function(e){
+                return e.mes_pesquisa;
+            });
+
+            const datad = data7.map(function(e){
+                return Number(e.preco_veiculo.replace(/[^0-9.-]+/g,""));
+            });
+
+            console.log(datad, typeof(datad), datad.length);
+
+            
+            let changevp = [], changeva = [];
+
+            for (var i=0; i < datad.length; i++) {
+                if (i == 0)  {
+                    changeva.push("");
+                    changevp.push("");
+                } 
+                else {
+                    const num1 = ((datad[i]-datad[0])/datad[0]) * 100;
+                    const round1 = parseFloat(num1).toFixed(2);
+
+                    changeva.push(round1);
+
+                    const num2 = ((datad[i]-datad[i-1])/datad[i-1]) * 100;
+                    const round2 = parseFloat(num2).toFixed(2);
+
+                    changevp.push(round2);
+
+                }
+            }
+            
+
+            console.log(changeva);
+          
+            var ctx = document.getElementById('chart').getContext('2d');
+            const myLineChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: datal,
+                    datasets: [{
+                        label: 'Acum. Desv. (%)',
+                        data: changeva,
+                        backgroundColor: "red",
+                        order: 2
+                    }, {
+                        label: 'Desv. (%)',
+                        data: changevp,
+                        type: 'line',
+                        backgroundColor: "blue",
+                        order: 1,
+                        fill: false,
+                        lineThickness: 2
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    scales: {
+                        yAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Desvalorização Acum.(%)'
+                            },
+                            ticks:{
+                                beginAtZero:true,
+                            }
+                        }],
+                        xAxes: [{
+                            fontSize: 6
+                        }]
+                    }
+
+                }
+            });
+        }
+
+        catch (e) {
+            console.log("Error happened: " + e);
+        }
+ 
+    }, false)       
+
+    </script>
+
+    <script>
+    namet();
+    async function namet() {
+        try {
+            const testlist = document.getElementById("testlist1")
+
+            const result = await fetch("http://localhost:7072/test", {method: "GET"})
+            const con1 = await result.json();
+            con1.forEach(t => {
+                const option = document.createElement("OPTION");
+                const name = document.createTextNode(t.nome_marca);
+                option.value = t.nome_marca;
+                option.appendChild(name);
+                document.querySelector('select').appendChild(option);
+            })
+        }
+        catch (e) {
+            console.log("Error is: " + e)
+        }
+    }
+
+    </script>
+
+</body>
+</html>
